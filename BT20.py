@@ -20,7 +20,7 @@ CHROME_USER_PATH = os.getenv("CHROME_DEFAULT_USER_PATH")
 print("your username is " + login)
 
 options = webdriver.ChromeOptions()
-options.add_argument(f"user-data-dir={CHROME_USER_PATH}}")
+options.add_argument(f"user-data-dir={CHROME_USER_PATH}")
 options.add_argument("--start-maximized")
 options.add_experimental_option("excludeSwitches", ["enable-automation"])
 options.add_experimental_option('useAutomationExtension', False)
@@ -85,54 +85,53 @@ except:
 
 
 try:
-    element = WebDriverWait(driver, TIMEOUT).until(
-        EC.title_is("D&D Beyond - An official digital toolset for Dungeons & Dragons (D&D) Fifth Edition (5e)")
-    )
     driver.get("https://www.dndbeyond.com/my-campaigns")
-    print(f"Select a campaign within {TIMEOUT/60 * 3} minute{"s" if TIMEOUT/3 > 1 else ""}")
+
+    s = "s" if (TIMEOUT/3 > 1) else ""
+    print(f"Select a campaign within {TIMEOUT/60 * 3} minute{s}")
+
+    try:
+        game_log_btn = WebDriverWait(driver, TIMEOUT * 3).until(
+        EC.presence_of_element_located((By.CLASS_NAME, "gamelog-button"))
+        )
+        game_log_btn.send_keys(Keys.RETURN)
+    except:
+        print(f'Process failed. Please select your campaign within {TIMEOUT/60 * 3} minutes')
+
+    ###################################
+
+    try:
+        g_log = WebDriverWait(driver, 1000).until(
+        EC.presence_of_element_located((By.CLASS_NAME, "GameLog_GameLogEntries__3oNPD"))
+        )
+        g_log_list = g_log.find_elements(By.TAG_NAME, 'li')
+
+        print(len(g_log_list))
+
+        for roll in g_log_list:
+            container = roll.find_element(By.TAG_NAME, 'div')
+            divs = container.find_elements(By.TAG_NAME, 'div')
+            for div in divs:
+                try:
+                    print(div.text)
+                except:
+                    print("no text")
+    except:
+        print('unable to find path for log')
 except:
     print(f'{TIMEOUT/3} minute timeout')
 
-try:
-    game_log_btn = WebDriverWait(driver, TIMEOUT * 3).until(
-        EC.presence_of_element_located((By.CLASS_NAME, "gamelog-button"))
-    )
-    game_log_btn.send_keys(Keys.RETURN)
-except:
-    print(f'Please select your campaign within {TIMEOUT/60 * 3} minutes')
-
-try:
-    g_log = WebDriverWait(driver, 1000).until(
-        EC.presence_of_element_located((By.CLASS_NAME, "GameLog_GameLogEntries__3oNPD"))
-    )
-    g_log_list = g_log.find_elements(By.TAG_NAME, 'li')
-
-    print(len(g_log_list))
-
-    for roll in g_log_list:
-        container = roll.find_element(By.TAG_NAME, 'div')
-        divs = container.find_elements(By.TAG_NAME, 'div')
-        for div in divs:
-            try:
-                print(div.text)
-            except:
-                print("no text")
-except:
-    print('unable to find path for log')
-
-
-print('done')
-    # sender = roll.find_element(By.CLASS_NAME, "GameLogEntry_Sender_1nlKd").text
-    # action = roll.find_element(By.CLASS_NAME, "DiceMessage_action__192Yv").text
-    # roll_type = roll.find_element(By.CLASS_NAME, "DiceMessage_RollType__wlBs").text
-    # dice = roll.find_element(By.CLASS_NAME, "DiceMessage_notation__1Rbq5").text
-    # total = roll.find_element(By.CLASS_NAME, "DiceMessage_total__2BPku").text
-    #
-    # print(sender)
-    # print(action)
-    # print(roll_type)
-    # print(dice)
-    # print(total)
+# sender = roll.find_element(By.CLASS_NAME, "GameLogEntry_Sender_1nlKd").text
+# action = roll.find_element(By.CLASS_NAME, "DiceMessage_action__192Yv").text
+# roll_type = roll.find_element(By.CLASS_NAME, "DiceMessage_RollType__wlBs").text
+# dice = roll.find_element(By.CLASS_NAME, "DiceMessage_notation__1Rbq5").text
+# total = roll.find_element(By.CLASS_NAME, "DiceMessage_total__2BPku").text
+#
+# print(sender)
+# print(action)
+# print(roll_type)
+# print(dice)
+# print(total)
 #sender class: GameLogEntry_Sender_1nlKd
 #throws/checks/attacks: DiceMessage_action__192Yv
 #to hit/damage/check/save: DiceMessage_RollType__wlBs
