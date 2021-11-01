@@ -32,9 +32,31 @@ driver = webdriver.Chrome(options=options, executable_path=PATH)
 driver.get("https://www.dndbeyond.com")
 main_page = driver.current_window_handle
 
+#needs to be reworked to account for multiple rolls in quick succession
+# i.e. if it goes from 12 rolls to 15 rolls, print out divs[0, 1, 2]
+def roll_listener(g_log):
+    print("listener, engaged")
+    rolls = g_log.find_elements(By.TAG_NAME, 'li')
+    curr_rolls = len(rolls)
+    new_roll = curr_rolls + 1
+    while curr_rolls != new_roll:
+        print(f"rolls: {len(rolls)}")
+        rolls = g_log.find_elements(By.TAG_NAME, 'li')
+        curr_rolls = len(rolls)
+        time.sleep(1)
+    rolls = g_log.find_elements(By.TAG_NAME, 'li')
+    divs = rolls[0].find_elements(By.TAG_NAME, 'div')
+    try:
+        print(f"here is first div: {divs[0].text}")
+    except:
+        print(f"here is first div: {divs[0].text()}")
+
+    roll_listener(g_log)
+
+
 #Login process
 try:
-    login_link = WebDriverWait(driver, 3).until(
+    login_link = WebDriverWait(driver, 1).until(
         EC.presence_of_element_located((By.ID, "login-link"))
     )
     login_link.send_keys(Keys.RETURN)
@@ -92,7 +114,7 @@ try:
 
     try:
         game_log_btn = WebDriverWait(driver, TIMEOUT * 3).until(
-        EC.presence_of_element_located((By.CLASS_NAME, "gamelog-button"))
+            EC.presence_of_element_located((By.CLASS_NAME, "gamelog-button"))
         )
         game_log_btn.send_keys(Keys.RETURN)
     except:
@@ -102,22 +124,12 @@ try:
 
     try:
         g_log = WebDriverWait(driver, 1000).until(
-        EC.presence_of_element_located((By.CLASS_NAME, "GameLog_GameLogEntries__3oNPD"))
+            EC.presence_of_element_located((By.CLASS_NAME, "GameLog_GameLogEntries__3oNPD"))
         )
-        g_log_list = g_log.find_elements(By.TAG_NAME, 'li')
-
-        print(len(g_log_list))
-
-        for roll in g_log_list:
-            container = roll.find_element(By.TAG_NAME, 'div')
-            divs = container.find_elements(By.TAG_NAME, 'div')
-            for div in divs:
-                try:
-                    print(div.text)
-                except:
-                    print("no text")
-    except:
+        roll_listener(g_log)
+    except Exception as e:
         print('unable to find path for log')
+        print(e)
 except:
     print(f'{TIMEOUT/3} minute timeout')
 
