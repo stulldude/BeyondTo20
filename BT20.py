@@ -32,31 +32,55 @@ driver = webdriver.Chrome(options=options, executable_path=PATH)
 driver.get("https://www.dndbeyond.com")
 main_page = driver.current_window_handle
 
+def roll_message():
+    print()
+
 #needs to be reworked to account for multiple rolls in quick succession
 # i.e. if it goes from 12 rolls to 15 rolls, print out divs[0, 1, 2]
 def roll_listener(g_log):
     print("listener, engaged")
     rolls = g_log.find_elements(By.TAG_NAME, 'li')
     curr_rolls = len(rolls)
-    new_roll = curr_rolls + 1
-    while curr_rolls != new_roll:
+    prev_rolls = curr_rolls
+
+    while curr_rolls == prev_rolls:
         print(f"rolls: {len(rolls)}")
         rolls = g_log.find_elements(By.TAG_NAME, 'li')
         curr_rolls = len(rolls)
         time.sleep(1)
     rolls = g_log.find_elements(By.TAG_NAME, 'li')
     divs = rolls[0].find_elements(By.TAG_NAME, 'div')
+
     try:
         print(f"here is first div: {divs[0].text}")
     except:
         print(f"here is first div: {divs[0].text()}")
+    try:
+        message_container = divs[0].find_elements(By.TAG_NAME, 'div')
+        name = message_container[0]
+        message_container2 = message_container[1].find_elements(By.TAG_NAME, 'div')
+        message = message_container2[0].find_element(By.TAG_NAME, 'div')
+        roll_info = message.find_elements(By.TAG_NAME, 'div')
+        roll_info_2 = roll_info[0].find_elements(By.TAG_NAME, 'div')
+        dice_rolls = roll_info_2[1].find_element(By.TAG_NAME, 'span')
+        total = roll_info[1]
 
+        print(f"here is name of roller: {name.text}")
+        print(f"expecting roll type: {roll_info_2[0].text}")
+        print(f"expecting dice roll notation: {roll_info_2[2].text}")
+        print(f"expecting dice roll results: {dice_rolls.get_attribute('title')}")
+        print(f"expecting total: {total.text}")
+        print(f"*******\nhere is roll_info:\n{roll_info.text}")
+        print(f"*******\nhere is roll_info_2:\n{roll_info_2.text}")
+    except Exception as e:
+        print("deep fail")
+        print(e)
     roll_listener(g_log)
 
 
 #Login process
 try:
-    login_link = WebDriverWait(driver, 1).until(
+    login_link = WebDriverWait(driver, 0).until(
         EC.presence_of_element_located((By.ID, "login-link"))
     )
     login_link.send_keys(Keys.RETURN)
@@ -126,6 +150,7 @@ try:
         g_log = WebDriverWait(driver, 1000).until(
             EC.presence_of_element_located((By.CLASS_NAME, "GameLog_GameLogEntries__3oNPD"))
         )
+        driver.implicitly_wait(3)
         roll_listener(g_log)
     except Exception as e:
         print('unable to find path for log')
