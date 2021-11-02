@@ -44,17 +44,13 @@ def roll_listener(g_log):
     prev_rolls = curr_rolls
 
     while curr_rolls == prev_rolls:
-        print(f"rolls: {len(rolls)}")
         rolls = g_log.find_elements(By.TAG_NAME, 'li')
         curr_rolls = len(rolls)
         time.sleep(1)
+    time.sleep(2)
     rolls = g_log.find_elements(By.TAG_NAME, 'li')
     divs = rolls[0].find_elements(By.TAG_NAME, 'div')
 
-    try:
-        print(f"here is first div: {divs[0].text}")
-    except:
-        print(f"here is first div: {divs[0].text()}")
     try:
         message_container = divs[0].find_elements(By.TAG_NAME, 'div')
         name = message_container[0]
@@ -63,17 +59,14 @@ def roll_listener(g_log):
         roll_info = message.find_elements(By.TAG_NAME, 'div')
         roll_info_2 = roll_info[0].find_elements(By.TAG_NAME, 'div')
         dice_rolls = roll_info_2[1].find_element(By.TAG_NAME, 'span')
-        total = roll_info[1]
 
-        print(f"here is name of roller: {name.text}")
-        print(f"expecting roll type: {roll_info_2[0].text}")
-        print(f"expecting dice roll notation: {roll_info_2[2].text}")
-        print(f"expecting dice roll results: {dice_rolls.get_attribute('title')}")
-        print(f"expecting total: {total.text}")
-        print(f"*******\nhere is roll_info:\n{roll_info.text}")
-        print(f"*******\nhere is roll_info_2:\n{roll_info_2.text}")
+        print(f"Player: {name.text}")
+        print(f"Roll type: {roll_info_2[0].text}")
+        print(f"Dice & modifiers: {roll_info_2[2].text}")
+        print(f"Roll results: {dice_rolls.get_attribute('title')}")
+        print(f"Total: {roll_info[5].get_attribute('innerText')}\n")
+
     except Exception as e:
-        print("deep fail")
         print(e)
     roll_listener(g_log)
 
