@@ -54,7 +54,7 @@ def roll20():
     roll20_driver.get("https://www.roll20.net")
     print("Select a game")
     get_text_input()
-    print(f"Now printing results to {roll20_dr.get_title()}")
+    print(f"Now printing results to {roll20_driver.title}")
 
 def roll_message(g_log, i):
     rolls = g_log.find_elements(By.TAG_NAME, 'li')
